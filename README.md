@@ -1,2 +1,2 @@
 # hello_rust
-rust basic example
+rust basic examples

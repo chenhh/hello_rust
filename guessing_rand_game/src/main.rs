@@ -2,7 +2,7 @@
 use std::io;
 
 fn main() {
-    println!("Guess the number!");
+    println!("Guess the random number!");
 
     println!("Please input your guess.");
 
