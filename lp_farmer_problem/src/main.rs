@@ -1,5 +1,5 @@
 use std::error::Error;
-use good_lp::{constraint, default_solver, Solution, SolverModel, variables, minilp};
+use good_lp::{constraint, default_solver, Solution, SolverModel, variables,  highs};
 
 // fn farmer(){
 //     variables! {
@@ -56,7 +56,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let solution = vars.minimise(
         &objective
     )
-        .using(minilp) // multiple solvers available
+        .using(highs) // multiple solvers available
         .with(constraint!(x[0] + x[1] + x[2] <= 500.))
         .with(constraint!(2.5 *x[0] + y[0] - w[0] >= 200.))
         .with(constraint!(3 * x[1] + y[1] - w[1] >= 240.))

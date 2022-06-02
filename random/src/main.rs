@@ -1,6 +1,9 @@
 use rand::Rng;
+use std::time::{Duration, Instant};
+
 
 fn main() {
+    let start = Instant::now();
     let mut rng = rand::thread_rng();
 
     let n1: u8 = rng.gen();
@@ -10,4 +13,7 @@ fn main() {
     println!("Random u32: {}", rng.gen::<u32>());
     println!("Random i32: {}", rng.gen::<i32>());
     println!("Random float: {}", rng.gen::<f64>());
+
+    let duration = start.elapsed();
+    println!("Time elapsed is: {:?}", duration);
 }
