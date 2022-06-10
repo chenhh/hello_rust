@@ -1,5 +1,5 @@
 [package]
-name = "my-polars"
+name = "mypolars"
 version = "0.1.0"
 edition = "2021"
 
