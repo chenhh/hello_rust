@@ -6,5 +6,8 @@ edition = "2021"
 [dependencies]
 slint = "1.8.0"
 
+# dependencies：您可以在 src 目錄下使用它們（通常是您為主程式編寫原始程式碼）
+# build-dependencies：你只能在專案根目錄 build.rs 使用它們，
+# 用於在構建程式之前準備一些外部依賴或調用外部命令（稱為“構建腳本”）
 [build-dependencies]
 slint-build = "1.8.0"
