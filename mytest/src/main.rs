@@ -53,4 +53,9 @@ mod tests {
 fn main(){
     let a = add(3, 4);
     println!("add value:{a}");
+
+    let b = [1,2,3,4,5];
+    println!("{b:?}");
+
+    b.iter()..for_each(|&x| println!("{x}"));
 }

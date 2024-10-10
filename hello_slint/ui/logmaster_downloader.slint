@@ -1,5 +1,11 @@
+// 從標準元件庫引用內建元件
+// https://github.com/slint-ui/slint/blob/master/internal/compiler/widgets/qt/std-widgets.slint
 import { Button, VerticalBox } from "std-widgets.slint";
 
+// 預設情況下，在 .slint 檔中宣告的每個型別都是私有的。export 關鍵字可讓其它slint存取此元件
+// https://docs.slint.dev/1.8.0/docs/slint/src/language/syntax/modules#modules
+
+// window是內建的元件(基本的視窗)，但是找不到文件? 但可在slintpad中看到可設定的屬性
 export component AppWindow inherits Window {
     in-out property <int> counter: 42;
     callback request-increase-value();
