@@ -1,0 +1,71 @@
+// 從標準元件庫引用內建元件
+// https://github.com/slint-ui/slint/blob/master/internal/compiler/widgets/qt/std-widgets.slint
+import { Button, VerticalBox } from "std-widgets.slint";
+
+// 預設情況下，在 .slint 檔中宣告的每個型別都是私有的。export 關鍵字可讓其它slint存取此元件
+// https://docs.slint.dev/1.8.0/docs/slint/src/language/syntax/modules#modules
+
+component MemoryTile inherits Rectangle {
+    callback clicked;
+    in property <bool> open_curtain;
+    in property <bool> solved;
+    in property <image> icon;
+
+    height: 64px;
+    width: 64px;
+    background: solved ? #34CE57 : #3960D5;
+    animate background { duration: 800ms; }
+
+    // 底層的影像
+    Image {
+        source: icon;
+        width: parent.width;
+        height: parent.height;
+    }
+
+    // Left curtain
+    Rectangle {
+        background: #193076;
+        x: 0px;
+        // 此處parent與root應該都是指MemoryTile
+        width: open_curtain ? 0px : (parent.width / 2);
+        height: parent.height;
+        animate width { duration: 250ms; easing: ease-in; }
+    }
+
+    // Right curtain
+    Rectangle {
+        background: #193076;
+        // 此處parent與root應該都是指MemoryTile
+        x: open_curtain ? parent.width : (parent.width / 2);
+        width: open_curtain ? 0px : (parent.width / 2);
+        height: parent.height;
+        animate width { duration: 250ms; easing: ease-in; }
+        animate x { duration: 250ms; easing: ease-in; }
+    }
+
+    TouchArea {
+        clicked => {
+            // Delegate to the user of this element
+            // root 引用元件中最外層的元素，此處為 MemoryTile
+            root.clicked();
+        }
+    }
+}
+// window是內建的元件(基本的視窗)，但是找不到文件? 但可在slintpad中看到可設定的屬性
+export component MainWindow inherits Window {
+    MemoryTile {
+        icon: @image-url("icons/bus.png");
+        clicked => {
+            self.open_curtain = !self.open_curtain;
+        }
+    }
+}
+
+
+//export component MainWindow inherits Window {
+//    Text {
+//        text: "hello world";
+//        color: green;
+//    }
+//}
