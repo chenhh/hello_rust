@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+rand = "0.8.5"
 slint = "1.8.0"
 
 # dependencies：您可以在 src 目錄下使用它們（通常是您為主程式編寫原始程式碼）

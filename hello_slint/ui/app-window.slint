@@ -5,6 +5,12 @@ import { Button, VerticalBox } from "std-widgets.slint";
 // 預設情況下，在 .slint 檔中宣告的每個型別都是私有的。export 關鍵字可讓其它slint存取此元件
 // https://docs.slint.dev/1.8.0/docs/slint/src/language/syntax/modules#modules
 
+struct TileData {
+    image: image,
+    image_visible: bool,
+    solved: bool,
+}
+
 component MemoryTile inherits Rectangle {
     callback clicked;
     in property <bool> open_curtain;
@@ -30,7 +36,10 @@ component MemoryTile inherits Rectangle {
         // 此處parent與root應該都是指MemoryTile
         width: open_curtain ? 0px : (parent.width / 2);
         height: parent.height;
-        animate width { duration: 250ms; easing: ease-in; }
+        animate width {
+            duration: 250ms;
+            easing: ease-in;
+        }
     }
 
     // Right curtain
@@ -40,8 +49,14 @@ component MemoryTile inherits Rectangle {
         x: open_curtain ? parent.width : (parent.width / 2);
         width: open_curtain ? 0px : (parent.width / 2);
         height: parent.height;
-        animate width { duration: 250ms; easing: ease-in; }
-        animate x { duration: 250ms; easing: ease-in; }
+        animate width {
+            duration: 250ms;
+            easing: ease-in;
+        }
+        animate x {
+            duration: 250ms;
+            easing: ease-in;
+        }
     }
 
     TouchArea {
@@ -52,16 +67,50 @@ component MemoryTile inherits Rectangle {
         }
     }
 }
+
 // window是內建的元件(基本的視窗)，但是找不到文件? 但可在slintpad中看到可設定的屬性
 export component MainWindow inherits Window {
-    MemoryTile {
-        icon: @image-url("icons/bus.png");
+    //    MemoryTile {
+//        icon: @image-url("icons/bus.png");
+//        clicked => {
+//            self.open_curtain = !self.open_curtain;
+//        }
+//    }
+    width: 326px;
+    height: 326px;
+
+    callback check_if_pair_solved(); // Added
+    in property <bool> disable_tiles; // Added
+
+
+    in property <[TileData]> memory_tiles: [
+        { image: @image-url("icons/at.png") },
+        { image: @image-url("icons/balance-scale.png") },
+        { image: @image-url("icons/bicycle.png") },
+        { image: @image-url("icons/bus.png") },
+        { image: @image-url("icons/cloud.png") },
+        { image: @image-url("icons/cogs.png") },
+        { image: @image-url("icons/motorcycle.png") },
+        { image: @image-url("icons/video.png") },
+    ];
+    for tile[i] in memory_tiles: MemoryTile {
+        x: mod(i, 4) * 74px;
+        y: floor(i / 4) * 74px;
+        width: 64px;
+        height: 64px;
+        icon: tile.image;
+        open_curtain: tile.image_visible || tile.solved;
+        // propagate the solved status from the model to the tile
+        solved: tile.solved;
         clicked => {
-            self.open_curtain = !self.open_curtain;
+            // tile.image_visible = !tile.image_visible;
+            if (!root.disable_tiles) {
+                tile.image_visible = true;
+                root.check_if_pair_solved();
+            }
         }
     }
 }
-
 
 //export component MainWindow inherits Window {
 //    Text {
