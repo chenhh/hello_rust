@@ -2,6 +2,10 @@
 // https://github.com/slint-ui/slint/blob/master/internal/compiler/widgets/qt/std-widgets.slint
 import { Button, VerticalBox } from "std-widgets.slint";
 
+// 所有視覺元素都顯示在一個視窗(window)中。x 和 y 屬性儲存元素相對於其父元素的座標(左上方為(0,0)。
+// 透過將父元素的位置添加到元素的位置來確定元素的絕對位置。如果父元素本身有一個父元素，那麼也會添加該父元素。此計算將一直持續，直到到達頂級元素。
+
+
 // 預設情況下，在 .slint 檔中宣告的每個型別都是私有的。export 關鍵字可讓其它slint存取此元件
 // https://docs.slint.dev/1.8.0/docs/slint/src/language/syntax/modules#modules
 
@@ -29,6 +33,8 @@ component MemoryTile inherits Rectangle {
     // icon用於記錄影相路徑
     in property <image> icon;
 
+    // 元素具有屬性，您可以為其分配值。
+    // 以分配整個表達式。當表達式所依賴的任何屬性發生變化時，Slint 會重新計算表示式，這使得使用者介面是反應性的。
     // 長、寬、背景色與動畫設定
     height: 64px;
     width: 64px;
@@ -83,6 +89,7 @@ component MemoryTile inherits Rectangle {
         clicked => {
             // Delegate to the user of this element
             // root 引用元件中最外層的元素，此處為 Window(?)
+            // parent為目前元件的父元件，self指元件本身
             root.clicked();
         }
     }
@@ -92,12 +99,11 @@ component MemoryTile inherits Rectangle {
 // 但可在slintpad中看到可設定的屬性
 // export的元件才可在rust可見
 export component MainWindow inherits Window {
-    //    MemoryTile {
-//        icon: @image-url("icons/bus.png");
-//        clicked => {
-//            self.open_curtain = !self.open_curtain;
-//        }
-//    }
+    // 您可以透過兩種方式放置元素來建立整個圖形使用者介面：
+    // 顯式 - 通過設置 x、y、width 和 height 屬性。
+    // Automatically - 通過使用佈局元素。
+    // 顯式放置非常適合元素較少的靜態場景。
+    // 佈局適用於複雜的使用者介面，並有助於創建可擴展的使用者介面。佈局元素表示元素之間的幾何關係。
     width: 326px;
     height: 326px;
 
