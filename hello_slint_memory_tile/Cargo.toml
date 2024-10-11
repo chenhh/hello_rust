@@ -1,5 +1,5 @@
 [package]
-name = "hello_slint"
+name = "hello_slint_memory_tile"
 version = "0.1.0"
 edition = "2021"
 
