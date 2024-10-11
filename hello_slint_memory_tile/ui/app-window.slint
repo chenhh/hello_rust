@@ -36,6 +36,8 @@ component MemoryTile inherits Rectangle {
     // 元素具有屬性，您可以為其分配值。
     // 以分配整個表達式。當表達式所依賴的任何屬性發生變化時，Slint 會重新計算表示式，這使得使用者介面是反應性的。
     // 長、寬、背景色與動畫設定
+    // 為任何幾何屬性指定顯式值時，Slint 要求您為數位附加一個單位。您可以在兩種不同的單位之間進行選擇：px或phx
+    // 您還可以將 width 和 height 屬性指定為 % 百分比單位(相對於父元件)
     height: 64px;
     width: 64px;
     background: solved ? #34CE57 : #3960D5;
