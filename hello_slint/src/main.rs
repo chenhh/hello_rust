@@ -10,6 +10,7 @@ slint::include_modules!();
 // }
 
 fn main() {
+    // 必須宣告才能讀取到TileData
     use slint::Model;
 
     let main_window = MainWindow::new().unwrap();
@@ -25,10 +26,16 @@ fn main() {
     tiles.shuffle(&mut rng);
 
     // Assign the shuffled Vec to the model property
+    // 獲取圖塊清單，複製它，然後對其進行隨機排序，通過 Rust 代碼存取 memory_tiles 屬性。
+    // 對於每個頂級屬性，Slint 都會生成一個 getter 和一個 setter 函數。
+    // 在本例中為 get_memory_tiles 和 set_memory_tiles。
+    // memory_tiles 是一個 Slint 陣列，表示為 Rc<dyn slint：：Model>。
     let tiles_model = std::rc::Rc::new(slint::VecModel::from(tiles));
     main_window.set_memory_tiles(tiles_model.clone().into());
 
     let main_window_weak = main_window.as_weak();
+
+    // callback function
     main_window.on_check_if_pair_solved(move || {
         let mut flipped_tiles = tiles_model
             .iter()

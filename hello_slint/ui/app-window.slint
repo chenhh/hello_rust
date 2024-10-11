@@ -5,52 +5,69 @@ import { Button, VerticalBox } from "std-widgets.slint";
 // 預設情況下，在 .slint 檔中宣告的每個型別都是私有的。export 關鍵字可讓其它slint存取此元件
 // https://docs.slint.dev/1.8.0/docs/slint/src/language/syntax/modules#modules
 
+// 資料模型：在程式為做為模型的陣列，其中每個元素都描述圖塊資料結構
 struct TileData {
-    image: image,
-    image_visible: bool,
-    solved: bool,
+    image: image,   // 圖片的url
+    image_visible: bool,    // 圖片是否可見
+    solved: bool,   // 是否已解答
 }
 
+// 放置圖片的小格，底層為圖片，上層為窗簾
+// 當滑鼠操上面按一下時，會打開窗簾顯示圖片
 component MemoryTile inherits Rectangle {
     callback clicked;
+
+    // property為自定義的組件屬性
+
+    // 判斷窗簾是開還是關
     in property <bool> open_curtain;
+
+    // 對於最後的潤色，添加一個 solved 屬性，
+    // 用於在玩家找到一對顏色時將顏色動畫化為綠色陰影。
     in property <bool> solved;
+
+    // icon用於記錄影相路徑
     in property <image> icon;
 
+    // 長、寬、背景色與動畫設定
     height: 64px;
     width: 64px;
     background: solved ? #34CE57 : #3960D5;
     animate background { duration: 800ms; }
 
-    // 底層的影像
+    // 底層的影像，宣告越前面的組件預設在越下面
     Image {
-        source: icon;
+        // 此處source不寫固定路徑，是因為會隨機配置圖片
+        source: icon; // icon為自定義屬性
         width: parent.width;
         height: parent.height;
     }
 
-    // Left curtain
+    // 左窗簾，蓋在Image上
     Rectangle {
         background: #193076;
         x: 0px;
-        // 此處parent與root應該都是指MemoryTile
+        // 此處parent指MemoryTile, 只蓋住左半部
+        // open_curtain為自定義屬性
+        // 寬度為零將使矩形不可見，通過將寬度設置為父項寬度的一半來填充左半部分
         width: open_curtain ? 0px : (parent.width / 2);
         height: parent.height;
         animate width {
-            duration: 250ms;
+            duration: 100ms;
             easing: ease-in;
         }
     }
 
-    // Right curtain
+    // 右窗簾，蓋在Image上
     Rectangle {
         background: #193076;
-        // 此處parent與root應該都是指MemoryTile
+        // 此處parent指MemoryTile, 只蓋住右半部
+        // open_curtain為自定義屬性
         x: open_curtain ? parent.width : (parent.width / 2);
         width: open_curtain ? 0px : (parent.width / 2);
         height: parent.height;
         animate width {
-            duration: 250ms;
+            duration: 100ms;
             easing: ease-in;
         }
         animate x {
@@ -58,17 +75,22 @@ component MemoryTile inherits Rectangle {
             easing: ease-in;
         }
     }
-
+    // 最上層，抓取滑鼠按鍵的資訊
+    // TouchArea 元素聲明一個透明的矩形區域，
+    // 該區域允許對使用者輸入（如滑鼠按兩下或點擊）做出反應。
+    // 該元素將回調轉發到 MainWindow，指示使用者按兩下了該磁貼。
     TouchArea {
         clicked => {
             // Delegate to the user of this element
-            // root 引用元件中最外層的元素，此處為 MemoryTile
+            // root 引用元件中最外層的元素，此處為 Window(?)
             root.clicked();
         }
     }
 }
 
-// window是內建的元件(基本的視窗)，但是找不到文件? 但可在slintpad中看到可設定的屬性
+// window是內建的元件(基本的視窗)，但是找不到文件?
+// 但可在slintpad中看到可設定的屬性
+// export的元件才可在rust可見
 export component MainWindow inherits Window {
     //    MemoryTile {
 //        icon: @image-url("icons/bus.png");
@@ -82,7 +104,7 @@ export component MainWindow inherits Window {
     callback check_if_pair_solved(); // Added
     in property <bool> disable_tiles; // Added
 
-
+    // 此處只宣告8個圖片，剩下配對的8個圖片由rust生成
     in property <[TileData]> memory_tiles: [
         { image: @image-url("icons/at.png") },
         { image: @image-url("icons/balance-scale.png") },
