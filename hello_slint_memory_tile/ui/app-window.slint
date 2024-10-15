@@ -1,5 +1,6 @@
 // 從標準元件庫引用內建元件
 // https://github.com/slint-ui/slint/blob/master/internal/compiler/widgets/qt/std-widgets.slint
+// https://docs.slint.dev/1.8.0/docs/slint/src/language/syntax/modules
 import { Button, VerticalBox } from "std-widgets.slint";
 
 // 所有視覺元素都顯示在一個視窗(window)中。x 和 y 屬性儲存元素相對於其父元素的座標(左上方為(0,0)。
@@ -10,11 +11,19 @@ import { Button, VerticalBox } from "std-widgets.slint";
 // https://docs.slint.dev/1.8.0/docs/slint/src/language/syntax/modules#modules
 
 // 資料模型：在程式為做為模型的陣列，其中每個元素都描述圖塊資料結構
+// struct沒有export，只能在內部使用
+// 預設情況下，在 .slint 檔中宣告的每個型別都是私有的。export 關鍵字會更改此設定。
 struct TileData {
-    image: image,   // 圖片的url
+    image: image,   // 對影象的引用可以使用 @image-url（“...”） 結構進行初始化
     image_visible: bool,    // 圖片是否可見
     solved: bool,   // 是否已解答
 }
+
+/*
+struct元素定義的語法和rust類似，名稱: 類別
+而 slint支援的類別比rust寬鬆如下：
+https://docs.slint.dev/1.8.0/docs/slint/src/language/syntax/types
+*/
 
 // 放置圖片的小格，底層為圖片，上層為窗簾
 // 當滑鼠操上面按一下時，會打開窗簾顯示圖片
@@ -74,6 +83,15 @@ component MemoryTile inherits Rectangle {
         x: open_curtain ? parent.width : (parent.width / 2);
         width: open_curtain ? 0px : (parent.width / 2);
         height: parent.height;
+        /* https://docs.slint.dev/1.8.0/docs/slint/src/language/syntax/animations
+          使用 animate 關鍵字為屬性宣告動畫
+          delay：開始動畫之前等待的時間
+          duration：動畫完成所需的時間
+          iteration-count：動畫應執行的次數。
+          easing：可以是以下任何值。
+             linear, ease系列
+             ...
+        */
         animate width {
             duration: 100ms;
             easing: ease-in;
@@ -97,9 +115,10 @@ component MemoryTile inherits Rectangle {
     }
 }
 
-// window是內建的元件(基本的視窗)，但是找不到文件?
+// https://docs.slint.dev/1.8.0/docs/slint/src/language/builtins/elements#window
+// window是內建的元件(基本的視窗)，是螢幕上可見的元素樹的根。
 // 但可在slintpad中看到可設定的屬性
-// export的元件才可在rust可見
+// export的元件才可在rust可見 (slint::include_modules!())
 export component MainWindow inherits Window {
     // 您可以透過兩種方式放置元素來建立整個圖形使用者介面：
     // 顯式 - 通過設置 x、y、width 和 height 屬性。
@@ -108,11 +127,21 @@ export component MainWindow inherits Window {
     // 佈局適用於複雜的使用者介面，並有助於創建可擴展的使用者介面。佈局元素表示元素之間的幾何關係。
     width: 326px;
     height: 326px;
+    icon: @image-url("icons/tile_logo.png");
 
-    callback check_if_pair_solved(); // Added
+    // 上面的width, height為組件內部的屬性，也可用propery設定額外的屬性
+    // property 預設為private，只能從組件內部存取
+    // in表示可由此元件的使用者設定和修改，例如通過繫結或通過回撥中的分配。
+    // out：只能由元件設定的 output 屬性。對於元件的使用者，它是唯讀的。
+    // in-out: 每個人都可以讀取和修改該屬性。
     in property <bool> disable_tiles; // Added
 
+    // 元件可以宣告回撥，將狀態的變化傳達給外部。回撥是通過 「呼叫」 它們來呼叫的，就像你呼叫函式一樣。
+    callback check_if_pair_solved(); // Added
+
     // 此處只宣告8個圖片，剩下配對的8個圖片由rust生成
+    // 陣列是通過在陣列元素的型別周圍用方括弧[ArrayType]括起來來宣告的。
+    // 對陣列的越界存取將返回預設構造的值。
     in property <[TileData]> memory_tiles: [
         { image: @image-url("icons/at.png") },
         { image: @image-url("icons/balance-scale.png") },
@@ -123,7 +152,10 @@ export component MainWindow inherits Window {
         { image: @image-url("icons/motorcycle.png") },
         { image: @image-url("icons/video.png") },
     ];
+    // for syntax
+    // for name[index] in model : id := Element { ... }
     for tile[i] in memory_tiles: MemoryTile {
+        // 以表示式設定MemoryTile的屬性
         x: mod(i, 4) * 74px;
         y: floor(i / 4) * 74px;
         width: 64px;
@@ -132,6 +164,9 @@ export component MainWindow inherits Window {
         open_curtain: tile.image_visible || tile.solved;
         // propagate the solved status from the model to the tile
         solved: tile.solved;
+
+        // 此處的=>為binding，當按下按鈕時會執行的表示式,
+        // 由於disable_tiles屬性為in, 所以可用binding修改
         clicked => {
             // tile.image_visible = !tile.image_visible;
             if (!root.disable_tiles) {
@@ -140,6 +175,17 @@ export component MainWindow inherits Window {
             }
         }
     }
+    // 自定義函數
+    // 函式可以具有在括弧內宣告的引數，格式為 name： type。
+    // 這些引數可以通過它們在函式體中的名稱進行引用。引數按 value 傳遞。
+    // 函式可以用 pure 關鍵字進行註釋。這表示該函式不會引起任何副作用。
+    // 回撥中的程式碼/邏輯可以在後端程式碼中設定，並使用後端語言（Rust、C++、JS）實現，
+    // 而函式必須完全在 slint 中定義
+    // 一般來說，使用回撥的最大原因是能夠從後端程式碼處理它們。如果不需要，請使用 function。
+     function my-function(parameter: int) -> string {
+            // Function code goes here
+            return "result";
+        }
 }
 
 //export component MainWindow inherits Window {
