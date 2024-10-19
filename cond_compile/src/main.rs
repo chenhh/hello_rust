@@ -1,13 +1,13 @@
 fn main() {
-    #[cfg(feature = "foo")]
+    #[cfg(feature = "cli")]
     {
-        println!("foo enabled");
-        println!("foo enabled2");
+        println!("cli enabled");
+        println!("cli enabled2");
     }
-    #[cfg(feature = "bar")]
+    #[cfg(feature = "gui")]
     {
-        println!("bar enabled");
-        println!("bar enabled2");
+        println!("gui enabled");
+        println!("gui enabled2");
     }
 
     println!("hello");
