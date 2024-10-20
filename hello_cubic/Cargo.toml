@@ -1,0 +1,7 @@
+[package]
+name = "hello_cubic"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cubic_transformation_rs = { git = "https://github.com/chenhh/cubic_transformation_rs", branch = "main" }
