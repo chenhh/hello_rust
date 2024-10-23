@@ -1,12 +1,13 @@
 use std::time::{Duration, Instant};
 use std::error::Error;
-use good_lp::{constraint, default_solver, Solution, SolverModel, variables,  minilp};
+use good_lp::{constraint, Variable, Expression, Solution, SolverModel, variables,  default_solver};
 
 fn farmer(acre: u32)-> Result<(), Box<dyn Error>>{
+    // 使用marco建立變數
      let bounds = 0;
       variables! {
         vars:
-           x[3] >= bounds;
+           x[3] >= bounds;  // // x will be a vector (x[0], x[1],x[2]) of variables
            0 <= y[2];
            0 <= w[4];
     }
@@ -16,7 +17,7 @@ fn farmer(acre: u32)-> Result<(), Box<dyn Error>>{
     let solution = vars.minimise(
         &objective
     )
-        .using(minilp) // multiple solvers available
+        .using(default_solver) // multiple solvers available
         .with(constraint!(x[0] + x[1] + x[2] <= acre))
         .with(constraint!(2.5 *x[0] + y[0] - w[0] >= 200))
         .with(constraint!(3 * x[1] + y[1] - w[1] >= 240))
@@ -24,16 +25,10 @@ fn farmer(acre: u32)-> Result<(), Box<dyn Error>>{
         .with(constraint!(w[2] <= 6000 ))
         .solve()?;
 
+        x.iter().enumerate().for_each(|(idx, v)|  println!("x[{idx}] = {}", solution.value(*v)));
+        y.iter().enumerate().for_each(|(idx, v)|  println!("y[{idx}] = {}", solution.value(*v)));
+        w.iter().enumerate().for_each(|(idx, v)|  println!("w[{idx}] = {}", solution.value(*v)));
 
-        // for (idx,v) in x.iter().enumerate()  {
-        //     println!("x[{idx}] = {}", solution.value(*v));
-        // }
-        // for (idx,v) in y.iter().enumerate()  {
-        //     println!("y[{idx}] = {}", solution.value(*v));
-        // }
-        // for (idx,v) in w.iter().enumerate()  {
-        //     println!("w[{idx}] = {}", solution.value(*v));
-        // }
         println!("optimal value: {}", solution.eval(&objective));
     Ok(())
 }
@@ -41,8 +36,9 @@ fn farmer(acre: u32)-> Result<(), Box<dyn Error>>{
 
 fn main() {
     let now = Instant::now();
-    for idx in 1..=10000 {
-        farmer(500*idx);
-    }
+    farmer(500).unwrap();
+    // for idx in 1..=10000 {
+    //     farmer(500*idx);
+    // }
      println!("elapsed:{:.4} secs", now.elapsed().as_secs_f32());
 }
