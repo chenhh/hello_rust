@@ -41,7 +41,7 @@ fn farmer(acre: u32)-> Result<(), Box<dyn Error>>{
 
 fn main() {
     let now = Instant::now();
-    for idx in 1..=10000 {
+    for idx in 1..=100 {
         farmer(500*idx);
     }
      println!("elapsed:{:.4} secs", now.elapsed().as_secs_f32());

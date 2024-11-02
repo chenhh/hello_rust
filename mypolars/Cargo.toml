@@ -6,4 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-polars = "0.22.6"
+polars = { version = "x", features = ["lazy", "temporal", "describe", "json", "parquet", "dtype-datetime",
+    "dtype-duration"]}
+chrono = "0.4.38"
